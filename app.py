@@ -1,3 +1,4 @@
+#https://dictionaryapi.dev/
 import tkinter as tk
 from tkinter import messagebox
 import requests
@@ -34,7 +35,7 @@ main_frame.pack(fill="both", expand=True)
 
 
 # ---------------- MAIN SCREEN UI ----------------
-tk.Label(main_frame, text="Enter a word:", font=("Arial", 14)).grid(row=0, column=0, padx=10, pady=10)
+tk.Label(main_frame, text="Enter a word:", font=("Arial", 14)).grid(row=0, column=0, padx=10, pady=30)
 
 entry = tk.Entry(main_frame, width=30, font=("Arial", 14))
 entry.grid(row=0, column=1, padx=10)
@@ -58,11 +59,15 @@ def lookup_word():
 btn = tk.Button(main_frame, text="Look Up", font=("Arial", 12), command=lookup_word)
 btn.grid(row=0, column=2, padx=10)
 
-
 # Listbox for definitions
-listbox = tk.Listbox(main_frame, width=root.winfo_screenwidth(), height=20, font=("Arial", 12))
-listbox.grid(row=1, column=0, columnspan=3, pady=20)
+listbox = tk.Listbox(main_frame, height=20, font=("Arial", 12))
+listbox.grid(row=1, column=0, columnspan=3, pady=40, padx=50, sticky="nsew")
+listbox.config(bg="#ffc383")
 
+main_frame.grid_rowconfigure(1, weight=1)
+main_frame.grid_columnconfigure(0, weight=1)
+main_frame.grid_columnconfigure(1, weight=1)
+main_frame.grid_columnconfigure(2, weight=1)
 
 # ---------------- DETAIL SCREEN UI ----------------
 detail_label = tk.Label(detail_frame, text="", wraplength=650, justify="left", font=("Arial", 14))
@@ -72,11 +77,17 @@ def show_main():
     detail_frame.pack_forget()
     main_frame.pack(fill="both", expand=True)
 
+def show_speech():
+    
+partOfSpeech = tk.Button(detail_frame, text="Part of Speech", font=("Arial", 12), bg="#f3f160", padx=30, pady=30)
+partOfSpeech.pack()
 back_button = tk.Button(detail_frame, text="Back", font=("Arial", 12), command=show_main)
 back_button.pack()
 
+
 main_frame.config(bg="#6dafe6")
-detail_frame.config(bg="#d35858")
+detail_frame.config(bg="#eb7373")
+
 # ---------------- SWITCHING SCREENS ----------------
 def show_detail(text):
     detail_label.config(text=text)
