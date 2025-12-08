@@ -14,26 +14,33 @@ def get_word(word):
     data = response.json()
     definitions = []
     speeches = []
+    sentences = []
 
     for meaning in data[0]["meanings"]:
         speeches.append(meaning["partOfSpeech"])
+
         for d in meaning["definitions"]:
             definitions.append(d["definition"])
+            # some examples are missing — avoid errors
+            sentences.append(d.get("example", "No example available."))
 
-    return definitions, speeches
+    return definitions, speeches, sentences
+
 
 # ---------------- MAIN WINDOW ----------------
 root = tk.Tk()
 root.title("XIYANG'S Amazing Dictionary")
 root.geometry("700x500")
 
-# ---------------- THREE SCREENS ----------------
+# ---------------- SCREENS ----------------
 main_frame = tk.Frame(root)
 detail_frame = tk.Frame(root)
 speech_frame = tk.Frame(root)
+sentence_frame = tk.Frame(root)
+
 main_frame.pack(fill="both", expand=True)
 
-# ---------------- MAIN SCREEN UI ----------------
+# ---------------- MAIN SCREEN ----------------
 tk.Label(main_frame, text="Enter a word:", font=("Arial", 14)).grid(row=0, column=0, padx=10, pady=30)
 
 entry = tk.Entry(main_frame, width=30, font=("Arial", 14))
@@ -41,9 +48,11 @@ entry.grid(row=0, column=1, padx=10)
 
 definitions_list = []
 speech_list = []
+sentence_list = []
+
 
 def lookup_word():
-    global definitions_list, speech_list
+    global definitions_list, speech_list, sentence_list
 
     word = entry.get().strip()
     listbox.delete(0, tk.END)
@@ -57,10 +66,11 @@ def lookup_word():
         listbox.insert(tk.END, "No definitions found.")
         return
 
-    definitions_list, speech_list = result
+    definitions_list, speech_list, sentence_list = result
 
     for i, d in enumerate(definitions_list, start=1):
         listbox.insert(tk.END, f"{i}. {d}")
+
 
 btn = tk.Button(main_frame, text="Look Up", font=("Arial", 12), command=lookup_word)
 btn.grid(row=0, column=2, padx=10)
@@ -74,65 +84,87 @@ main_frame.grid_columnconfigure(0, weight=1)
 main_frame.grid_columnconfigure(1, weight=1)
 main_frame.grid_columnconfigure(2, weight=1)
 
-# ---------------- SWITCHING SCREENS ----------------
-def detail(text):
-    detail_label.config(text=text)
-    main_frame.pack_forget()
-    speech_frame.pack_forget()
-    detail_frame.pack(fill="both", expand=True)
 
-def on_select(event):
-    index = listbox.nearest(event.y)
+# ---------------- NAVIGATION HANDLING ----------------
+def switch_to(frame):
+    """Hide all frames and show the selected one."""
+    for f in (main_frame, detail_frame, speech_frame, sentence_frame):
+        f.pack_forget()
+    frame.pack(fill="both", expand=True)
 
-    # Prevent clicks outside actual items
-    if index < 0 or index >= listbox.size():
-        return
 
-    value = listbox.get(index)
-    detail(value)
-
-listbox.bind("<Double-Button-1>", on_select)
-
-# ---------------- DETAIL SCREEN UI ----------------
+# ---------------- DETAIL SCREEN ----------------
 detail_label = tk.Label(detail_frame, text="", wraplength=650, justify="left", font=("Arial", 14))
 detail_label.pack(pady=40)
 
-def show_main():
-    speech_frame.pack_forget()
-    detail_frame.pack_forget()
-    main_frame.pack(fill="both", expand=True)
 
-def show_speech():
-    detail_frame.pack_forget()
-    speech_frame.pack(fill="both", expand=True)
-    update_speech_screen()
+def detail(text):
+    detail_label.config(text=text)
+    switch_to(detail_frame)
 
-def show_detail():
-    speech_frame.pack_forget()
 
-partOfSpeech_btn = tk.Button(detail_frame, text="Part of Speech", font=("Arial", 12), command=show_speech)
-partOfSpeech_btn.pack()
+def on_select(event):
+    index = listbox.nearest(event.y)
+    if index < 0 or index >= listbox.size():
+        return
+    value = listbox.get(index)
+    detail(value)
 
-back_button = tk.Button(detail_frame, text="Back", font=("Arial", 12), command=show_main)
-back_button.pack()
 
-main_frame.config(bg="#6dafe6")
-detail_frame.config(bg="#eb7373")
-speech_frame.config(bg="#d6aaff")
+listbox.bind("<Double-Button-1>", on_select)
 
-# ---------------- SPEECH SCREEN -----------------
+
+# DETAIL SCREEN BUTTONS
+tk.Button(detail_frame, text="Part of Speech", font=("Arial", 12),
+          command=lambda: [update_speech_screen(), switch_to(speech_frame)]
+         ).pack()
+
+tk.Button(detail_frame, text="Example Sentences", font=("Arial", 12),
+          command=lambda: [update_sentence_screen(), switch_to(sentence_frame)]
+         ).pack()
+
+tk.Button(detail_frame, text="Back", font=("Arial", 12),
+          command=lambda: switch_to(main_frame)).pack()
+
+
+# ---------------- SPEECH SCREEN ----------------
 speech_label = tk.Label(speech_frame, text="", wraplength=650, justify="left", font=("Arial", 14))
 speech_label.pack(pady=40)
 
-speech_back = tk.Button(speech_frame, text="Back", font=("Arial", 12), command=show_detail)
-speech_back.pack()
+tk.Button(speech_frame, text="Back", font=("Arial", 12),
+          command=lambda: switch_to(detail_frame)).pack()
+
 
 def update_speech_screen():
     if speech_list:
         text = "Parts of Speech:\n\n" + "\n".join(f"- {s}" for s in speech_list)
     else:
-        text = "No part of speech data available."
+        text = "No part of speech info available."
     speech_label.config(text=text)
+
+
+# ---------------- SENTENCE SCREEN ----------------
+sentence_label = tk.Label(sentence_frame, text="", wraplength=650, justify="left", font=("Arial", 14))
+sentence_label.pack(pady=40)
+
+tk.Button(sentence_frame, text="Back", font=("Arial", 12),
+          command=lambda: switch_to(detail_frame)).pack()
+
+
+def update_sentence_screen():
+    if sentence_list:
+        text = "Example Sentences:\n\n" + "\n".join(f"- {s}" for s in sentence_list)
+    else:
+        text = "No example sentences found."
+    sentence_label.config(text=text)
+
+
+# ---------------- COLORS ----------------
+main_frame.config(bg="#6dafe6")
+detail_frame.config(bg="#eb7373")
+speech_frame.config(bg="#d6aaff")
+sentence_frame.config(bg="#ffdf9e")
+
 
 # ---------------- RUN APP ----------------
 root.mainloop()
