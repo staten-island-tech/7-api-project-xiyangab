@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import messagebox
 import requests
 
+selected_index = -1
+
 # ---------------- API FUNCTION ----------------
 def get_word(word):
     url = f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}"
@@ -12,6 +14,7 @@ def get_word(word):
         return None
 
     data = response.json()
+
     definitions = []
     speeches = []
     sentences = []
@@ -20,12 +23,13 @@ def get_word(word):
         speeches.append(meaning["partOfSpeech"])
 
         for d in meaning["definitions"]:
-            definitions.append(d["definition"])
-            # some examples are missing — avoid errors
-            sentences.append(d.get("example", "No example available."))
+            definitions.append(d.get("definition", ""))
+
+            # sentence tied to THIS definition
+            example = d.get("example", "No example available.")
+            sentences.append(example)
 
     return definitions, speeches, sentences
-
 
 # ---------------- MAIN WINDOW ----------------
 root = tk.Tk()
@@ -104,11 +108,15 @@ def detail(text):
 
 
 def on_select(event):
+    global selected_index
+
     index = listbox.nearest(event.y)
+
     if index < 0 or index >= listbox.size():
         return
-    value = listbox.get(index)
-    detail(value)
+
+    selected_index = index
+    detail(listbox.get(index))
 
 
 listbox.bind("<Double-Button-1>", on_select)
@@ -152,11 +160,10 @@ tk.Button(sentence_frame, text="Back", font=("Arial", 12),
 
 
 def update_sentence_screen():
-    if sentence_list:
-        text = "Example Sentences:\n\n" + "\n".join(f"- {s}" for s in sentence_list)
+    if 0 <= selected_index < len(sentence_list):
+        sentence_label.config(text="Example Sentence:\n\n- " + sentence_list[selected_index])
     else:
-        text = "No example sentences found."
-    sentence_label.config(text=text)
+        sentence_label.config(text="No example available.")
 
 
 # ---------------- COLORS ----------------
