@@ -13,13 +13,16 @@ def getWord(word):
     data = response.json()
 
     allDef = []
+    allSpeech = []
+    allExample = []
 
     for meaning in data[0]["meanings"]:
-        for d in meaning["definitions"]:
+        allSpeech.append(meaning["partOfSpeech"])
+        for d in meaning.get("definitions", []):
             allDef.append(d["definition"])
 
-    return allDef
+    return allDef, allSpeech, allExample
 
 word = getWord("punch")
 
-print(word[2])
+print(word)

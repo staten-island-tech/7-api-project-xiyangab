@@ -20,10 +20,12 @@ def get_word(word):
     sentences = []
 
     for meaning in data[0]["meanings"]:
-        speeches.append(meaning["partOfSpeech"])
 
         for d in meaning["definitions"]:
             definitions.append(d.get("definition", ""))
+
+            # FIX: tie part of speech to the SAME definition
+            speeches.append(meaning["partOfSpeech"])
 
             # sentence tied to THIS definition
             example = d.get("example", "No example available.")
@@ -134,11 +136,10 @@ tk.Button(speech_frame, text="Back", font=("Arial", 12),
           command=lambda: switch_to(detail_frame)).pack()
 
 def update_speech_screen():
-    if speech_list:
-        text = "Parts of Speech:\n\n" + "\n".join(f"- {s}" for s in speech_list)
+    if 0 <= selected_index < len(speech_list):
+        speech_label.config(text="Part of Speech:\n\n- " + speech_list[selected_index])
     else:
-        text = "No part of speech info available."
-    speech_label.config(text=text)
+        speech_label.config(text="No part of speech available.")
 
 # ---------------- SENTENCE SCREEN ----------------
 sentence_label = tk.Label(sentence_frame, text="", wraplength=650, justify="left", font=("Arial", 14))
