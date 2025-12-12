@@ -34,13 +34,39 @@ def getWord(word):
 
 
 #tkinter app
-root = tk.Tk()
-root.title("XIYANGS amazing dictionary")
-root.geometry("1000x1000")
-entry = tk.Entry(root, width=50)
-
 def search():
     word = entry.get().strip()
 
     if not word:
-        messagebox
+        messagebox.showwarning("Missing word", "Please enter a word to search.")
+        return
+    
+    get = getWord(word)
+
+    if get == None:
+        messagebox.showwarning("Not found",f"Could not find {word}")
+        return
+
+    definitions, speech, examples = get
+    
+    if get:
+        text_to_show = ""
+        for d in definitions:
+            text_to_show += f"• {d}\n\n"
+        deflabel.config(text=text_to_show)
+
+#ui
+root = tk.Tk()
+root.title("XIYANGS amazing dictionary")
+root.geometry("1920x1080")
+
+entry = tk.Entry(root, width=50, font=("Arial", 14))
+entry.pack(pady=5)
+
+searchBt = tk.Button(root, width=20, text="Search", command=search)
+searchBt.pack(pady=10)
+
+deflabel = tk.Label(root, width=40, text="", wraplength=400, font=("Arial", 14))
+deflabel.pack(pady=40)
+
+root.mainloop()
