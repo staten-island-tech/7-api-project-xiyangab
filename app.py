@@ -66,7 +66,7 @@ entry.pack(pady=5)
 searchBt = tk.Button(root, width=20, text="Search", command=search)
 searchBt.pack(pady=10)
 
-deflabel = tk.Label(root, width=40, text="", wraplength=400, font=("Arial", 14))
+deflabel = tk.Label(root, width=40, text="", wraplength=400, justify=LEFT, font=("Arial", 14))
 deflabel.pack(pady=40)
 
-root.mainloop()
+root.mainloop
