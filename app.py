@@ -32,7 +32,6 @@ def getWord(word):
 
     return allDef, allSpeech, allExample
 
-
 #tkinter app
 def search():
     word = entry.get().strip()
@@ -52,7 +51,7 @@ def search():
     if get:
         text_to_show = ""
         for d in definitions:
-            text_to_show += f"• {d}\n\n"
+            text_to_show += f"• {d}\n"
         deflabel.config(text=text_to_show)
 
 #ui
@@ -60,13 +59,22 @@ root = tk.Tk()
 root.title("XIYANGS amazing dictionary")
 root.geometry("1920x1080")
 
-entry = tk.Entry(root, width=50, font=("Arial", 14))
+definition_screen = tk.Frame(root)
+
+entry = tk.Entry(definition_screen, width=50, font=("Arial", 14))
 entry.pack(pady=5)
 
-searchBt = tk.Button(root, width=20, text="Search", command=search)
+searchBt = tk.Button(definition_screen, width=20, text="Search", command=search)
 searchBt.pack(pady=10)
 
-deflabel = tk.Label(root, width=40, text="", wraplength=400, justify=LEFT, font=("Arial", 14))
+deflabel = tk.Label(definition_screen, width=40, text="", wraplength=400, justify=LEFT, font=("Arial", 14))
 deflabel.pack(pady=40)
 
-root.mainloop
+#exampleBT = tk.Button(root, width=40, text="", command=)
+def show_screen(frame):
+    definition_screen.pack_forget()
+    frame.pack(fill="both", expand=True)
+
+definition_screen.pack(fill="both", expand=True)
+
+root.mainloop()
