@@ -71,7 +71,7 @@ deflabel = tk.Label(definition_screen, width=40, text="", wraplength=400, justif
 deflabel.pack(pady=40)
 
 #exampleBT = tk.Button(root, width=40, text="", command=)
-def show_screen(frame):
+def show_ds(frame):
     definition_screen.pack_forget()
     frame.pack(fill="both", expand=True)
 
